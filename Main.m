@@ -1,5 +1,4 @@
 sampleIm = imread('Sample.jpg');
-
 [sampleFilteredIm, gaussLPF] = GaussianLowPassFilter(sampleIm);
 
 figure('Name', 'Guassian low-pass filter');
@@ -57,5 +56,53 @@ title('Restored Image');
 
 disp('-----Finished Solving Problem 2.2-----');
 pause;
+
+sampleIm = imread('Sample.jpg');
+capitalIm = imread('Capital.jpg');
+
+sampleImDouble = im2double(sampleIm);
+capitalImDouble = im2double(capitalIm);
+
+fftSampleIm = fftshift(fft2(sampleImDouble));
+fftCapitalIm = fftshift(fft2(capitalImDouble));
+
+sampleImMag = abs(fftSampleIm);
+sampleImPhase = angle(fftSampleIm);
+capitalImMag = abs(fftCapitalIm);
+capitalImPhase = angle(fftCapitalIm);
+
+figure;
+subplot(2, 2, 1);
+imshow(rescale(log(sampleImMag)));
+title('Magnitude of Sample Image');
+subplot(2, 2, 2);
+imshow(rescale(sampleImPhase));
+title('Phase of Sample Image');
+subplot(2, 2, 3);
+imshow(rescale(log(capitalImMag)));
+title('Magnitude of Capital Image');
+subplot(2, 2, 4);
+imshow(rescale(capitalImPhase));
+title('Phase of Capital Image');
+
+disp('-----Finished Solving Problem 3.1-----');
+pause;
+
+capMixedMag = capitalImMag .* exp(1i * sampleImPhase);
+sampleMixedMag = sampleImMag .* exp(1i * capitalImPhase);
+
+capSampIm = ifft2(ifftshift(capMixedMag));
+sampCapIm = ifft2(ifftshift(sampleMixedMag));
+
+figure;
+subplot(1, 2, 1);
+imshow(real(capSampIm));
+title('Capital Magnitude, Sample Phase');
+subplot(1, 2, 2);
+imshow(real(sampCapIm));
+title('Sample Magnitude, Capital Phase');
+disp('-----Finished Solving Problem 3.2-----');
+pause;
+
 
 close all;
