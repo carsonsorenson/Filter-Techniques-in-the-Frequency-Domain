@@ -104,5 +104,29 @@ title('Sample Magnitude, Capital Phase');
 disp('-----Finished Solving Problem 3.2-----');
 pause;
 
+boyIm = imread('boy_noisy.gif');
+boyImDouble = im2double(boyIm);
+fftBoyIm = fftshift(fft2(boyImDouble));
 
+% Calculate the image magnitude, 4 largest distinct magnitudes, and indices
+% where those magnitudes are
+[fftBoyImMag, largestMags, indices] = ComputeMagnitudes(fftBoyIm);
+
+% Replace the largest magnitudes with the average of its neighbors
+% magnitudes to remove noise
+[newMags] = ReplaceCosineNoise(fftBoyImMag, largestMags, indices);
+
+fftFixedBoyIm = newMags .* exp(1i * angle(fftBoyIm));
+fixedBoyIm = ifft2(ifftshift(fftFixedBoyIm));
+
+figure;
+subplot(1, 2, 1);
+imshow(boyIm);
+title('Original Boy Image');
+subplot(1, 2, 2);
+imshow(uint8(fixedBoyIm*255));
+title('Filtered Boy Image');
+
+disp('-----Finished Solving Problem 4-----');
+pause;
 close all;
