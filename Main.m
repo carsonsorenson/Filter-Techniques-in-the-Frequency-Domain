@@ -1,4 +1,3 @@
-%{
 sampleIm = imread('Sample.jpg');
 
 [sampleFilteredIm, gaussLPF] = GaussianLowPassFilter(sampleIm);
@@ -32,7 +31,7 @@ title('Filtered Image');
 
 disp('-----Finished Solving Problem 1.2-----');
 pause;
-%}
+
 
 cityIm = imread('City.jpg');
 
@@ -48,5 +47,15 @@ imshow(turbulentCityIm);
 title('Filtered Image');
 
 disp('-----Finished Solving Problem 2.1-----');
-pause
+pause;
+
+blurredCityIm = imread('BlurCity.bmp');
+restoredIm = WienerFilter(blurredCityIm);
+figure;
+imshow(restoredIm);
+title('Restored Image');
+
+disp('-----Finished Solving Problem 2.2-----');
+pause;
+
 close all;
