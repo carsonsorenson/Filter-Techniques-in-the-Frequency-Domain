@@ -11,5 +11,5 @@ for i=1:2:n-1
         + oriMags(row,col+1) + oriMags(row+1,col-1) ...
         + oriMags(row+1,col) + oriMags(row+1,col+1)) / 8;
     newMags(row,col) = avg;
-    newMags(conjRow,conjCol) = avg;
+    newMags(conjRow,conjCol) = conj(avg);
 end

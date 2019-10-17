@@ -1,3 +1,4 @@
+%{
 sampleIm = imread('Sample.jpg');
 [sampleFilteredIm, gaussLPF] = GaussianLowPassFilter(sampleIm);
 
@@ -96,10 +97,12 @@ sampCapIm = ifft2(ifftshift(sampleMixedMag));
 
 figure;
 subplot(1, 2, 1);
-imshow(real(capSampIm));
+imshow(uint8(capSampIm*255));
+%imshow(real(capSampIm));
 title('Capital Magnitude, Sample Phase');
 subplot(1, 2, 2);
-imshow(real(sampCapIm));
+imshow(uint8(sampCapIm*255));
+%imshow(real(sampCapIm));
 title('Sample Magnitude, Capital Phase');
 disp('-----Finished Solving Problem 3.2-----');
 pause;
@@ -124,9 +127,90 @@ subplot(1, 2, 1);
 imshow(boyIm);
 title('Original Boy Image');
 subplot(1, 2, 2);
-imshow(uint8(fixedBoyIm*255));
+imshow(fixedBoyIm);
 title('Filtered Boy Image');
 
 disp('-----Finished Solving Problem 4-----');
 pause;
+%}
+
+lenaIm = imread('Lena.jpg');
+dwtmode('per');
+n = wmaxlev(size(lenaIm),'db2');
+[C,L] = wavedec2(lenaIm,n,'db2');
+restoredLena = uint8(waverec2(C,L,'db2'));
+if isequal(restoredLena,lenaIm)
+    disp('The two images are the same');
+else
+    disp('The two images are different');
+end
+
+disp('-----Finished Solving Problem 5.1-----');
+pause;
+
+%apply 3-level db2 wavelet decomposition
+[C, L] = wavedec2(lenaIm,3,'db2');
+
+% set the four values of each 2x2 non-overlapping block in the
+% approximation subband as its average
+A3 = appcoef2(C,L,'db2',3);
+[rows,cols] = size(A3);
+for i=1:2:rows
+    for j=1:2:cols
+        block=A3(i:i+1,j:j+1);
+        avg=sum(block(:))/numel(block);
+        A3(i:i+1,j:j+1)=avg;
+    end
+end
+newA3=reshape(A3,[1,numel(A3)]);
+C1=C;
+C1(1:prod(L(1,:)))=newA3;
+lenaIm1 = waverec2(C1,L,'db2');
+figure;
+imshow(uint8(lenaIm1));
+title('Average approximation subband');
+
+% set the first level vertical detail coefficients as 0's
+[HL1,LH1,HH1] = WaveletIndex(C,L,1);
+C2 = C;
+C2(LH1(1):LH1(2))=0;
+lenaIm2 = waverec2(C2,L,'db2');
+figure;
+imshow(uint8(lenaIm2));
+title('First Level Vertical Detail at 0');
+
+% set the third level horizontal detail coefficients as 0's
+[HL3,LH3,HH3] = WaveletIndex(C,L,3);
+C3 = C;
+C3(HL3(1):HL3(2))=0;
+lenaIm3 = waverec2(C3,L,'db2');
+figure;
+imshow(uint8(lenaIm3));
+title('Third Level Horizontal Detail at 0');
+
+%{
+lenaIm = imread('Lena.jpg');
+noisyLena = imnoise(lenaIm, 'gaussian', 0, 0.01);
+dwtmode('per');
+[C, L] = wavedec2(noisyLena, 3, 'db2');
+a3 = C(1:prod(L(1,:)));
+
+newSubband1 = RemoveWhiteNoise(C,L,1);
+newSubband2 = RemoveWhiteNoise(C,L,2);
+newSubband3 = RemoveWhiteNoise(C,L,3);
+
+newC = [a3,newSubband3,newSubband2,newSubband1];
+recLena = waverec2(newC,L,'db2');
+
+figure;
+subplot(1,3,1);
+imshow(lenaIm);
+subplot(1,3,2);
+imshow(noisyLena);
+subplot(1,3,3);
+imshow(uint8(recLena));
+
+disp('-----Finished Solving Problem 6-----');
+pause;
+%}
 close all;
