@@ -1,4 +1,3 @@
-%{
 sampleIm = imread('Sample.jpg');
 [sampleFilteredIm, gaussLPF] = GaussianLowPassFilter(sampleIm);
 
@@ -132,7 +131,6 @@ title('Filtered Boy Image');
 
 disp('-----Finished Solving Problem 4-----');
 pause;
-%}
 
 lenaIm = imread('Lena.jpg');
 dwtmode('per');
