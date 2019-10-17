@@ -188,29 +188,39 @@ figure;
 imshow(uint8(lenaIm3));
 title('Third Level Horizontal Detail at 0');
 
-%{
-lenaIm = imread('Lena.jpg');
-noisyLena = imnoise(lenaIm, 'gaussian', 0, 0.01);
+disp('-----Finished Solving Problem 5.2-----');
+pause;
+
+% 1- Call imnoise to add Gaussian white noise
+noisyLena = imnoise(lenaIm,'gaussian',0,0.01);
+
+% 2- Apply a 3-level db2 wavelet decomposition
 dwtmode('per');
-[C, L] = wavedec2(noisyLena, 3, 'db2');
-a3 = C(1:prod(L(1,:)));
+[C,L] = wavedec2(noisyLena,3,'db2');
 
-newSubband1 = RemoveWhiteNoise(C,L,1);
-newSubband2 = RemoveWhiteNoise(C,L,2);
-newSubband3 = RemoveWhiteNoise(C,L,3);
+% 3,4,5 - Handled by the function RemoveWhiteNoise
+newC1 = RemoveWhiteNoise(C,L,1);
 
-newC = [a3,newSubband3,newSubband2,newSubband1];
-recLena = waverec2(newC,L,'db2');
+% 6- Apply steps 3,4,5 on 2nd level subband
+newC2 = RemoveWhiteNoise(newC1,L,2);
 
+% 7- Apply steps 3,4,5 on 3rd level subband
+newC3 = RemoveWhiteNoise(newC2,L,3);
+
+% 8- Take the inverse wavelet transform to get denoised image
+recLena = waverec2(newC3,L,'db2');
+
+% 9- Display the noisy image and the denoised image side-by-side
 figure;
-subplot(1,3,1);
-imshow(lenaIm);
-subplot(1,3,2);
+subplot(1,2,1);
 imshow(noisyLena);
-subplot(1,3,3);
+title('Noisy Image');
+subplot(1,2,2);
 imshow(uint8(recLena));
+title('Denoised Image');
 
 disp('-----Finished Solving Problem 6-----');
 pause;
-%}
+
+clear;
 close all;
